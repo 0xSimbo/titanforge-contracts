@@ -1,0 +1,22 @@
+[
+    {
+        "address": "0xe2B608468a872462b7E78080a5ec7f9BB824c81c",
+        "signature": "0xf3c92264a67048177218df47001e56674b1d795cf0962cc5d8dd3db045a4389267e9115aae2e7d74279626bf80ada23cbd698626a414fa88a900c8059f15cfa31c",
+        "max": 2
+    },
+    {
+        "address": "0xA088dbABfB8c606058EcE639E9a2c273c8C37213",
+        "signature": "0x6de37b8cdadda2623c545a898d799670fe509ac7dd853a2fa6d35b472af6afbe78cc6178843c63ff3435843e2be1441f5d9cfe0c3ce3cd57c61ca239f7bf1b4b1c",
+        "max": 2
+    },
+    {
+        "address": "0x6884efd53b2650679996D3Ea206D116356dA08a9",
+        "signature": "0xfad556da25cd443e175ef14c2ab639cf8cf44f0f428ace15de52a82d0ba421104ab2315cec251d4d6baeb27db6fb4b1bb4651c69c097c7946c67b7af17196d6f1c",
+        "max": 2
+    },
+    {
+        "address": "0x064E1721A0c5591D8040AC3c80A666a733397Dac",
+        "signature": "0xef60159ab7df4ee55a5e7f5ddd3ef8ee5ac5ea2c859406929001915f8474f0942fd5a63bdd66426ca14c123119b8361aae541b480d56dfb5e1630026b161b9f91b",
+        "max": 2
+    }
+]

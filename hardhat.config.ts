@@ -9,6 +9,9 @@ import 'hardhat-gas-reporter';
 import { task } from 'hardhat/config';
 import path from 'path';
 import 'solidity-coverage';
+import * as dotenv from 'dotenv'
+import "@nomicfoundation/hardhat-toolbox";
+dotenv.config();
 
 export default {
   solidity: {
@@ -20,6 +23,15 @@ export default {
       },
     },
   },
+  networks:{
+    rinkeby:{
+      url: process.env.RINKEBY_URL? process.env.RINKEBY_URL : '',
+      accounts: [process.env.PRIVATE_KEY? process.env.PRIVATE_KEY : ''],
+    }
+  },
+  etherscan:{
+    apiKey: process.env.ETHERSCAN_API_KEY? process.env.ETHERSCAN_API_KEY : ''
+  },
 
   abiExporter: {
     runOnCompile: true,
@@ -27,6 +39,8 @@ export default {
     flat: true,
     except: ['.*Mock$'],
   },
+
+  
 
   gasReporter: {
     enabled: true,

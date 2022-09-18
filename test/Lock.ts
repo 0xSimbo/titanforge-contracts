@@ -136,12 +136,12 @@ describe("Diamond", function () {
 
         console.log(`kobold 0 = ${await diamondAttachedToKoboldStaking.getKoboldAccumulatedReward(0)}`);
 
-        await diamondAttachedToKoboldStaking.withdrawReward([0]);
-        console.log(`kobold 0  after redeeming= ${await diamondAttachedToKoboldStaking.getKoboldAccumulatedReward(0)}`);
-        expect(await diamondAttachedToKoboldStaking.getKoboldAccumulatedReward(0)).to.equal(0);
-        console.log(`user ignot balance = ${await ingot.balanceOf(owner.address)}`);
+        // await diamondAttachedToKoboldStaking.withdrawReward([0]);
+        // console.log(`kobold 0  after redeeming= ${await diamondAttachedToKoboldStaking.getKoboldAccumulatedReward(0)}`);
+        // expect(await diamondAttachedToKoboldStaking.getKoboldAccumulatedReward(0)).to.equal(0);
+        // console.log(`user ignot balance = ${await ingot.balanceOf(owner.address)}`);
 
-        expect(await diamondAttachedToKoboldStaking.viewKoboldTotalReward(0)).to.equal(ethers.utils.parseEther('0'));
+        // expect(await diamondAttachedToKoboldStaking.viewKoboldTotalReward(0)).to.equal(ethers.utils.parseEther('0'));
 
         // !Setting Up Kobold Multipliers Facet
         const koboldMultipliersFunctionNames  = [
@@ -190,15 +190,15 @@ describe("Diamond", function () {
         await diamondAttachedToKoboldMultipliers.setKoboldMultiplier(axe);
         await diamondAttachedToKoboldMultipliers.setKoboldMultiplier(candle);
 
-        //Buying First Multiplier
-        await ingot.approve(diamond.address, axe.price);
-        await diamondAttachedToKoboldMultipliers.purchaseKoboldMultiplier(0,1);
-        expect(await diamondAttachedToKoboldMultipliers.getUserBalance(owner.address,0)).to.equal(1);
+        // //Buying First Multiplier
+        // await ingot.approve(diamond.address, axe.price);
+        // await diamondAttachedToKoboldMultipliers.purchaseKoboldMultiplier(0,1);
+        // expect(await diamondAttachedToKoboldMultipliers.getUserBalance(owner.address,0)).to.equal(1);
 
-        //Buying Second Multiplier
-        await ingot.approve(diamond.address, candle.price);
-        await diamondAttachedToKoboldMultipliers.purchaseKoboldMultiplier(1,1);
-        expect(await diamondAttachedToKoboldMultipliers.getUserBalance(owner.address,1)).to.equal(1);
+        // //Buying Second Multiplier
+        // await ingot.approve(diamond.address, candle.price);
+        // await diamondAttachedToKoboldMultipliers.purchaseKoboldMultiplier(1,1);
+        // expect(await diamondAttachedToKoboldMultipliers.getUserBalance(owner.address,1)).to.equal(1);
 
        const other = await KoboldMultipliersFacet__factory.connect(diamond.address, otherAccount);
        
@@ -212,7 +212,18 @@ describe("Diamond", function () {
         await time.increase(60);
 
         //Withdraw Rewards With Multiplier This Time
-        await diamondAttachedToKoboldStaking.withdrawRewardWithMultiplier([1],0);
+        //get current block.timestamp
+        const currentBlock = await ethers.provider.getBlock('latest');
+        const currentTimestamp = currentBlock.timestamp;
+        const healthPoints = [100,100,100,100,100,100];
+        const messageToSign = ethers.utils.solidityKeccak256([
+          'uint',
+          'uint[]',
+          'string',
+          'uint[]'
+        ], [currentTimestamp, tokensToStake, 'KHPS', healthPoints]);
+        const signature = await owner.signMessage(ethers.utils.arrayify(messageToSign));
+        await diamondAttachedToKoboldStaking.withdrawReward(tokensToStake,healthPoints,currentTimestamp,signature);
         console.log(`kobold 1  after redeeming= ${await diamondAttachedToKoboldStaking.getKoboldAccumulatedReward(1)}`);
         expect(await diamondAttachedToKoboldStaking.getKoboldAccumulatedReward(1)).to.equal(0);
 

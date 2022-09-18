@@ -43,11 +43,21 @@ contract KoboldStakingFacet is Ownable {
         LibKoboldStaking.endKoboldBatchStake(tokenIds);
     }
     //Withdraw Function
-    function withdrawReward(uint[] calldata tokenIds) external {
-        LibKoboldStaking.withdrawReward(tokenIds);
+    function withdrawReward(uint[] calldata tokenIds,
+      uint[] calldata healthPoints,
+    uint referenceTimestamp,
+    bytes memory signature
+    ) external {
+        LibKoboldStaking.withdrawReward(tokenIds,
+        healthPoints,referenceTimestamp,signature);
     }
-    function withdrawRewardWithMultiplier(uint[] calldata tokenIds,uint koboldMultiplierId) external {
-        LibKoboldStaking.withdrawRewardWithMultiplier(tokenIds,koboldMultiplierId);
+    function withdrawRewardWithMultiplier(uint[] calldata tokenIds,
+    uint koboldMultiplierId,
+    uint[] calldata healthPoints,
+    uint referenceTimestamp,
+    bytes memory signature) external {
+        LibKoboldStaking.withdrawRewardWithMultiplier(tokenIds,
+        koboldMultiplierId,healthPoints,referenceTimestamp,signature);
     }
 
 

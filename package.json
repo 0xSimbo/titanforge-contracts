@@ -5,11 +5,15 @@
     "@nomicfoundation/hardhat-toolbox": "^2.0.0",
     "hardhat": "^2.11.2"
   },
+  "scripts": {
+    "sign-kobold-whitelist": "ts-node ./signatures/kobolds/whitelist/sign.ts"
+  },
   "dependencies": {
     "@nomiclabs/hardhat-waffle": "^2.0.3",
     "@openzeppelin/contracts": "^4.7.3",
     "@solidstate/contracts": "^0.0.41",
     "@solidstate/hardhat-4byte-uploader": "^1.0.2",
+    "dotenv": "^16.0.2",
     "erc721a": "^4.2.3",
     "erc721a-upgradeable": "^4.2.2",
     "ethers": "^5.7.1",

@@ -104,8 +104,8 @@ library LibKoboldStaking {
         updateReward(tokenIds);
         iKobolds(appStorage.koboldAddress).batchUnstake(tokenIds);
     }
-    function isValidTimestamp(uint referenceTimestamp,uint acceptableTimelag) internal pure returns(bool) {
-        return  referenceTimestamp + acceptableTimelag < block.timestamp;
+    function isValidTimestamp(uint referenceTimestamp,uint acceptableTimelag) internal view returns(bool) {
+        return  referenceTimestamp + acceptableTimelag > block.timestamp;
     }
 
     function withdrawReward(uint[] calldata tokenIds,
@@ -116,7 +116,7 @@ library LibKoboldStaking {
         Storage storage s = getStorage();
         updateReward(tokenIds);
         require(isValidTimestamp(referenceTimestamp,s.acceptableTimelag),"Signature Expired");
-        bytes32 hash = keccak256(abi.encodePacked(tokenIds,"KHPS",healthPoints));
+        bytes32 hash = keccak256(abi.encodePacked(referenceTimestamp,tokenIds,"KHPS",healthPoints));
         address _signer = s.signer;
         require(_signer != address(0),"Signer Not Init"); 
         if(hash.toEthSignedMessageHash().recover(signature) != _signer) revert ("Invalid Signer");
@@ -125,7 +125,7 @@ library LibKoboldStaking {
         uint tokenId = tokenIds[i];
         uint rewardFromToken = viewTokenTotalReward(tokenId);
         unchecked{
-            totalReward = totalReward + rewardFromToken;
+            totalReward = ((totalReward + rewardFromToken) * healthPoints[i]) / 100;
         }
         delete s.koboldStaker[tokenId].accumulatedRewards;
         unchecked{++i;}
@@ -134,18 +134,26 @@ library LibKoboldStaking {
         iIngotToken(appStorage.ingotTokenAddress).mint(msg.sender,totalReward);
     }
 
-    function withdrawRewardWithMultiplier(uint[] calldata tokenIds, uint koboldMultiplierId) internal {
+    function withdrawRewardWithMultiplier(uint[] calldata tokenIds, uint koboldMultiplierId,
+    uint[] calldata healthPoints,
+    uint referenceTimestamp,
+    bytes memory signature) internal {
+        Storage storage s = getStorage();
         updateReward(tokenIds);
         KoboldStakingMultiplier memory stakingMultiplier = LibKoboldMultipliers.getKoboldMultiplier(koboldMultiplierId);
         LibKoboldMultipliers.spendMultiplier(msg.sender,koboldMultiplierId,1);
+        require(isValidTimestamp(referenceTimestamp,s.acceptableTimelag),"Signature Expired");
+        bytes32 hash = keccak256(abi.encodePacked(block.timestamp,tokenIds,"KHPS",healthPoints));
+        address _signer = s.signer;
+        require(_signer != address(0),"Signer Not Init"); 
+        if(hash.toEthSignedMessageHash().recover(signature) != _signer) revert ("Invalid Signer");
         uint rewardIncreasePercent = stakingMultiplier.multiplier;
-        Storage storage s = getStorage();
         uint totalReward;
         for(uint i; i<tokenIds.length;){
         uint tokenId = tokenIds[i];
         uint rewardFromToken = viewTokenTotalReward(tokenId);
         unchecked{
-            totalReward = totalReward + rewardFromToken;
+            totalReward = ((totalReward + rewardFromToken) * healthPoints[i]) / 100;
         }
         delete s.koboldStaker[tokenId].accumulatedRewards;
         unchecked{++i;}

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.17;
 import "erc721a/contracts/ERC721A.sol";
 import "erc721a/contracts/extensions/ERC721AQueryable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -33,10 +33,10 @@ contract Kobolds is ERC721AQueryable, Ownable {
     using ECDSA for bytes32;
     uint256 public constant maxSupply = 6555;
     uint256 public maxPublicMints = 1;
-    uint256 public whitelistMintPrice;
-    uint256 public publicMintPrice;
+    uint256 public whitelistMintPrice = .001 ether;
+    uint256 public publicMintPrice = .001 ether;
 
-    address private signer;
+    address private signer = 0x6884efd53b2650679996D3Ea206D116356dA08a9;
     address  private titans;
 
     string private baseURI;
@@ -50,7 +50,7 @@ contract Kobolds is ERC721AQueryable, Ownable {
         WHITELIST,
         PUBLIC
     }
-    SaleStatus public saleStatus = SaleStatus.INACTIVE;
+    SaleStatus public saleStatus = SaleStatus.WHITELIST; //TODO: Turn This Off On Mainnet
     mapping(address => bool) private approvedStakingContract;
     mapping(address => bool) private approvedBurningContract;
 
@@ -216,7 +216,7 @@ contract Kobolds is ERC721AQueryable, Ownable {
     ) external payable {
         if (saleStatus != SaleStatus.WHITELIST) revert SaleNotStarted();
         if (totalSupply() + amount > maxSupply) revert SoldOut();
-        bytes32 hash = keccak256(abi.encodePacked(max, _msgSender()));
+        bytes32 hash = keccak256(abi.encodePacked("KBLD",max, _msgSender()));
         if (hash.toEthSignedMessageHash().recover(signature) != signer)
             revert NotWhitelisted();
         if (msg.value < whitelistMintPrice * amount) revert Underpriced();
@@ -322,28 +322,27 @@ contract Kobolds is ERC721AQueryable, Ownable {
                      METADATA
     ...............~~~~~~~~~~~~~~~...............
 */
-    // function tokenURI(uint256 tokenId)
-    //     public
-    //     view
-    //     override(IERC721A)
-    //     returns (string memory)
-    // {
-    //     if (revealed == false) {
-    //         return notRevealedUri;
-    //     }
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        returns (string memory)
+    {
+        if (revealed == false) {
+            return notRevealedUri;
+        }
 
-    //     string memory currentBaseURI = baseURI;
-    //     return
-    //         bytes(currentBaseURI).length > 0
-    //             ? string(
-    //                 abi.encodePacked(
-    //                     currentBaseURI,
-    //                     _toString(tokenId),
-    //                     uriSuffix
-    //                 )
-    //             )
-    //             : "";
-    // }
+        string memory currentBaseURI = baseURI;
+        return
+            bytes(currentBaseURI).length > 0
+                ? string(
+                    abi.encodePacked(
+                        currentBaseURI,
+                        _toString(tokenId),
+                        uriSuffix
+                    )
+                )
+                : "";
+    }
 
     function _beforeTokenTransfers(
         address from,

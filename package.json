@@ -1,0 +1,23 @@
+{
+  "name": "hardhat-project",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^2.0.0",
+    "hardhat": "^2.11.2"
+  },
+  "dependencies": {
+    "@nomiclabs/hardhat-waffle": "^2.0.3",
+    "@openzeppelin/contracts": "^4.7.3",
+    "@solidstate/contracts": "^0.0.41",
+    "@solidstate/hardhat-4byte-uploader": "^1.0.2",
+    "erc721a": "^4.2.3",
+    "erc721a-upgradeable": "^4.2.2",
+    "ethers": "^5.7.1",
+    "hardhat-abi-exporter": "^2.10.0",
+    "hardhat-contract-sizer": "^2.6.1",
+    "hardhat-gas-reporter": "^1.0.9",
+    "hardhat-spdx-license-identifier": "^2.0.3",
+    "path": "^0.12.7",
+    "solidity-coverage": "^0.8.2"
+  }
+}

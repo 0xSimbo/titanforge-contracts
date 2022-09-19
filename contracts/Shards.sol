@@ -132,6 +132,7 @@ contract Shards is ERC1155, Ownable {
             revert UpgradesNotOpen();
         if (desiredElement == 0) revert RedundantBurn();
         if (currentShard.supplyMinted + amountToBurn > currentShard.maxSupply) revert InexistentElement();
+        shard[desiredElement].supplyMinted = currentShard.supplyMinted + amountToBurn;
         ingot.burn(_msgSender(), amountToBurn * ingotRequiredToUpgrade);
         _burn(_msgSender(), 0, amountToBurn);
         _mint(_msgSender(), desiredElement, amountToBurn, "");
@@ -147,7 +148,7 @@ contract Shards is ERC1155, Ownable {
         uint256 tokenId,
         uint256 amount
     ) external {
-        if (!approvedBurner[from]) revert UnauthorizedMinter();
+        if (!approvedBurner[from]) revert UnauthorizedBurner();
         _burn(from, tokenId, amount);
     }
 
@@ -161,7 +162,11 @@ contract Shards is ERC1155, Ownable {
         uint256 id,
         uint256 amount
     ) public {
+
         if (!approvedMinter[_msgSender()]) revert UnauthorizedMinter();
+        Shard memory currentShard = shard[id];
+        if(currentShard.supplyMinted + amount > currentShard.maxSupply) revert InexistentElement();
+        shard[id].supplyMinted = currentShard.supplyMinted + amount;
         _mint(account, id, amount, "");
     }
 }

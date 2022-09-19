@@ -28,15 +28,15 @@ contract KoboldMultipliersFacet is Ownable {
         LibKoboldMultipliers.purchaseMultiplier(msg.sender,koboldMultiplierId,quantity);
     }
     //We Get User Balance
-    function getUserBalance(address user, uint koboldMultiplerId) external view returns(uint) {
+    function getKoboldMultiplierUserBalance(address user, uint koboldMultiplerId) external view returns(uint) {
         return LibKoboldMultipliers.getUserBalance(user,koboldMultiplerId);
     }
 
     //Approve And Unapprove Multiplier Spenders... This Will Be Reserved For The Staking Contracts To Use
-    function approveSpender(address spender) external onlyOwner {
+    function approveKoboldMultiplierSpender(address spender) external onlyOwner {
         LibKoboldMultipliers.approveSpender(spender);
     }
-    function unapproveSpender(address spender) external onlyOwner {
+    function unapproveKoboldMultiplierSpender(address spender) external onlyOwner {
         LibKoboldMultipliers.unapproveSpender(spender);
     }
 

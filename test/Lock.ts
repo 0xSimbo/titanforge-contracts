@@ -4,7 +4,8 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { KoboldMultipliersFacet__factory,
 AppStorageFacet__factory,
-KoboldStakingFacet__factory
+KoboldStakingFacet__factory,
+KoboldHealthBoosterFacet__factory
 } from "../typechain-types";
 import { BigNumber } from "ethers";
 
@@ -41,18 +42,23 @@ describe("Diamond", function () {
     const KOBOLD_STAKING_FACET  = await ethers.getContractFactory("KoboldStakingFacet");
     const koboldStakingFacet = await KOBOLD_STAKING_FACET.deploy();
 
+    const KOBOLD_HEALTH_BOOSTER_FACET = await ethers.getContractFactory("KoboldHealthBoosterFacet");
+    const koboldHealthBoosterFacet = await KOBOLD_HEALTH_BOOSTER_FACET.deploy();
+
+
     //Approve the diamond to mint the ingot tokens
     await ingot.approveMinter(diamond.address);
 
 
-    return { diamond, owner, otherAccount,multiplierFacet,ingot,kobolds,koboldStakingFacet};
+    return { diamond, owner, otherAccount,multiplierFacet,ingot,kobolds,koboldStakingFacet,
+    koboldHealthBoosterFacet};
   }
 
   describe("Deployment", function () {
     
     it("Should...", async function() {
       // We use loadFixture to run the fixture and get the returned values
-      const { diamond, otherAccount, owner,multiplierFacet,ingot,kobolds,koboldStakingFacet } = await loadFixture(
+      const { diamond, otherAccount, owner,multiplierFacet,ingot,kobolds,koboldStakingFacet,koboldHealthBoosterFacet } = await loadFixture(
         deployOneYearLockFixture
       );
 
@@ -148,9 +154,9 @@ describe("Diamond", function () {
           "setKoboldMultiplier",
           "getKoboldMultiplier",
           "purchaseKoboldMultiplier",
-          "getUserBalance",
-          "approveSpender",
-          "unapproveSpender",
+          "getKoboldMultiplierUserBalance",
+          "approveKoboldMultiplierSpender",
+          "unapproveKoboldMultiplierSpender",
           "queryBatchKoboldMultipliers",
           "queryUserBalanceBatchMultipliers"
 
@@ -231,9 +237,60 @@ describe("Diamond", function () {
         console.log(`user ignot balance = ${await ingot.balanceOf(owner.address)}`);
 
         //Check Balance of Multiplier 0 
-        const multiplierBalance = await diamondAttachedToKoboldMultipliers.getUserBalance(owner.address,0);
+        const multiplierBalance = await diamondAttachedToKoboldMultipliers.getKoboldMultiplierUserBalance(owner.address,0);
         console.log(`multiplier 0 balance = ${multiplierBalance}`);
         expect(multiplierBalance).to.equal(0);
+
+        //! Adding Kobold Health Booster Facet
+        const koboldHealthBoosterFunctionNames  = [
+          "setKoboldHealthBooster",
+          "getKoboldHealthBooster",
+          "purchaseKoboldHealthBooster",
+          "getKoboldHealthBoosterUserBalance",
+          "approveKoboldHealthBoosterSpender",
+          "unapproveKoboldHealthBoosterSpender",
+          "queryBatchKoboldHealthBoosters",
+          "queryUserBalanceBatchHealthBoosters"
+        ]
+        const koboldHealthBoosterFunctionSignatures = koboldHealthBoosterFunctionNames.map(
+          (name) => koboldHealthBoosterFacet.interface.getSighash(name)
+        );
+
+        const koboldHealthBoosterFacetCuts = [
+          {
+            target: koboldHealthBoosterFacet.address,
+            action: 0,
+            selectors: koboldHealthBoosterFunctionSignatures,
+          }
+        ]
+        await diamond.diamondCut(koboldHealthBoosterFacetCuts, ethers.constants.AddressZero, "0x");
+
+        const diamondAttachedToKoboldHealthBooster = KoboldHealthBoosterFacet__factory.connect(diamond.address, owner);
+
+        // Set The First Health Booster
+        const healthBooster = {
+          price: ethers.utils.parseEther('1'),
+          isAvailableForPurchase: true,
+          healthBoost: 5,
+          name:"Basic Health Potion"
+        }
+        await diamondAttachedToKoboldHealthBooster.setKoboldHealthBooster(healthBooster);
+        
+        //Log The First Health Booster
+        console.log(await diamondAttachedToKoboldHealthBooster.getKoboldHealthBooster(0));
+
+        //Buy The First Health Booster
+        await ingot.approve(diamond.address, healthBooster.price);
+        //Log Ingot Balance
+        console.log(`ingot balance = ${await ingot.balanceOf(owner.address)}`);
+        await diamondAttachedToKoboldHealthBooster.purchaseKoboldHealthBooster(0,1);
+        expect(await diamondAttachedToKoboldHealthBooster.getKoboldHealthBoosterUserBalance(owner.address,0)).to.equal(1);
+        //Log Ingot Balance
+        console.log(`ingot balance = ${await ingot.balanceOf(owner.address)}`);
+
+
+
+
     })
   })
 });

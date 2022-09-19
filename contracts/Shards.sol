@@ -4,6 +4,7 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import {iIngotToken} from "./interfaces/IIngotToken.sol";
+import "./interfaces/IShards.sol";
 error UnauthorizedMinter();
 error UnauthorizedBurner();
 error RedundantBurn();
@@ -15,7 +16,7 @@ error UpgradesNotOpen();
 /// @author 0xSimon_
 /// @notice Shards are used in the Titanforge ecosystem to mint titants. Shards Can be upgraded using Ingot Token.
 
-contract Shards is ERC1155, Ownable {
+contract Shards is ERC1155, Ownable,iShards {
     mapping(uint256 => Shard) private shard;
     mapping(address => bool) private approvedMinter;
     mapping(address => bool) private approvedBurner;

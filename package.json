@@ -13,6 +13,7 @@
     "@openzeppelin/contracts": "^4.7.3",
     "@solidstate/contracts": "^0.0.41",
     "@solidstate/hardhat-4byte-uploader": "^1.0.2",
+    "axios": "^0.27.2",
     "dotenv": "^16.0.2",
     "erc721a": "^4.2.3",
     "erc721a-upgradeable": "^4.2.2",
@@ -22,6 +23,7 @@
     "hardhat-gas-reporter": "^1.0.9",
     "hardhat-spdx-license-identifier": "^2.0.3",
     "path": "^0.12.7",
+    "random-js": "^2.1.0",
     "solidity-coverage": "^0.8.2"
   }
 }

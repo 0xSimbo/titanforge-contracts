@@ -153,6 +153,7 @@ library LibKoboldStaking {
         uint tokenId = tokenIds[i];
         uint rewardFromToken = viewTokenTotalReward(tokenId);
         unchecked{
+            //Can't Overflow Or Underflow
             totalReward = ((totalReward + rewardFromToken) * healthPoints[i]) / 100;
         }
         delete s.koboldStaker[tokenId].accumulatedRewards;

@@ -4,7 +4,6 @@ import { Random } from "random-js";
 import * as fs from 'fs';
 const BASE_SHARD_CHANCE = 5; //5%
 const random = new Random(); // uses the nativeMath engine
-const value = random.integer(1, 100); 
 import {ethers} from 'ethers';
 import * as dotenv from 'dotenv';
 dotenv.config();
@@ -39,7 +38,7 @@ async function generateRandomness() {
                 // console.log(allKoboldData[i].shardBoosts[j]);
             
             }
-        const value = random.integer(1, 100);
+        const value = random.integer(0, 100);
         koboldShards[i].maxShards =  shardBoostChance > value ? currentKobold.maxShards + 1: currentKobold.maxShards;
         const message = ethers.utils.solidityKeccak256(['uint','string','uint'],[i,"MBS",koboldShards[i].maxShards]);
         const signature = await wallet.signMessage(ethers.utils.arrayify(message));

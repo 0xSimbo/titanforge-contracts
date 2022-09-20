@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: Unlicensed
 pragma solidity 0.8.17;
 import {KoboldHealthBooster}  from "../interfaces/IKoboldHealthBooster.sol";
+
+///@author @0xSimon_
+
 library LibKoboldHealthBoosters {
     //Storage
     bytes32 internal constant NAMESPACE = keccak256("titanforge.kobold.health.items");

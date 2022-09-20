@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: Unlicensed
 pragma solidity 0.8.17;   
 import {AppStorage} from "../interfaces/IAppStorage.sol";
+
+///@author @0xSimon_
+
+
 library LibAppStorage {
 
     bytes32 internal constant NAMESPACE = keccak256("titanforge.items.diamond.appstorage");

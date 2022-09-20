@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: Unlicensed
 pragma solidity 0.8.17;
 import {KoboldStakingMultiplier}  from "../interfaces/IKoboldMultiplier.sol";
+
+///@author @0xSimon_
+
 library LibKoboldMultipliers {
     //Storage
     bytes32 internal constant NAMESPACE = keccak256("titanforge.kobold.multipliers");

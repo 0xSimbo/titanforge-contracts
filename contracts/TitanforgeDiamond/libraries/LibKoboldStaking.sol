@@ -7,6 +7,8 @@ import "../../interfaces/IIngotToken.sol";
 import "./LibKoboldMultipliers.sol";
 import "../interfaces/IKoboldMultiplier.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+
+///@author @0xSimon_
 library LibKoboldStaking {
     using ECDSA for bytes32;
     //Storage

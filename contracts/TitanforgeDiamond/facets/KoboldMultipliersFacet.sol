@@ -5,6 +5,8 @@ import "@solidstate/contracts/access/ownable/Ownable.sol";
 import "../libraries/LibKoboldMultipliers.sol";
 import {KoboldStakingMultiplier}  from "../interfaces/IKoboldMultiplier.sol";
 import "../libraries/LibAppStorage.sol";
+///@author @0xSimon_
+
 contract KoboldMultipliersFacet is Ownable {
     
 

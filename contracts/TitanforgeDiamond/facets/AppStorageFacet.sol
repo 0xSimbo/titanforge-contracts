@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: Unlicensed
-pragma solidity 0.8.17;   
+pragma solidity 0.8.17;
 
 import "@solidstate/contracts/access/ownable/Ownable.sol";
 import "../libraries/LibAppStorage.sol";
 import {AppStorage} from "../interfaces/IAppStorage.sol";
+///@author @0xSimon_
+
 contract AppStorageFacet is Ownable {
 
     function initializeAppStorage(address ingotTokenAddress,address koboldAddress,address titanAddress) external onlyOwner{

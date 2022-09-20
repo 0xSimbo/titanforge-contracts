@@ -2,6 +2,8 @@
 pragma solidity 0.8.17;
 import "@solidstate/contracts/access/ownable/Ownable.sol";
 import "../libraries/LibKoboldStaking.sol";
+///@author @0xSimon_
+
 contract KoboldStakingFacet is Ownable {
     
     function getSigner() external view returns(address) {

@@ -5,6 +5,9 @@ import "@solidstate/contracts/access/ownable/Ownable.sol";
 import "../libraries/LibKoboldHealthBoosters.sol";
 import {KoboldHealthBooster}  from "../interfaces/IKoboldHealthBooster.sol";
 import "../libraries/LibAppStorage.sol";
+
+///@author @0xSimon_
+
 contract KoboldHealthBoosterFacet is Ownable {
     
 

@@ -13,6 +13,7 @@
     "@openzeppelin/contracts": "^4.7.3",
     "@solidstate/contracts": "^0.0.41",
     "@solidstate/hardhat-4byte-uploader": "^1.0.2",
+    "@types/node": "^18.7.18",
     "axios": "^0.27.2",
     "dotenv": "^16.0.2",
     "erc721a": "^4.2.3",

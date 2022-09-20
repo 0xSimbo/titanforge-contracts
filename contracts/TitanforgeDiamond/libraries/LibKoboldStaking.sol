@@ -81,42 +81,36 @@ library LibKoboldStaking {
     function updateReward(uint[] calldata tokenIds) internal {
         AppStorage storage appStorage = LibAppStorage.appStorage();
         Storage storage s = getStorage();
+        bool[] memory stakedStatus = iKobolds(appStorage.koboldAddress).checkIfBatchIsStaked(tokenIds);
         for(uint i; i<tokenIds.length;) {
         uint tokenId = tokenIds[i];
-        require(msg.sender == iKobolds(appStorage.koboldAddress).ownerOf(tokenId),"Not Owner");
-        uint256 reward = nextReward(tokenId);
-        KoboldStaker memory staker = s.koboldStaker[tokenId];
-        staker.accumulatedRewards += reward;
-        staker.lastUpdateTimestamp = block.timestamp;
-        s.koboldStaker[tokenId] = staker;
-        unchecked{++i;}
-        }
-    }
-    function updateRewardOnEndStake(uint[] calldata tokenIds) internal {
-        AppStorage storage appStorage = LibAppStorage.appStorage();
-        Storage storage s = getStorage();
-        for(uint i; i<tokenIds.length;) {
-        uint tokenId = tokenIds[i];
-        require(msg.sender == iKobolds(appStorage.koboldAddress).ownerOf(tokenId),"Not Owner");
-        uint256 reward = nextReward(tokenId);
-        KoboldStaker memory staker = s.koboldStaker[tokenId];
-        staker.accumulatedRewards += reward;
-        staker.lastUpdateTimestamp = 0;
-        s.koboldStaker[tokenId] = staker;
-        unchecked{++i;}
+            require(msg.sender == iKobolds(appStorage.koboldAddress).ownerOf(tokenId),"Not Owner");
+            uint256 reward = nextReward(tokenId);
+            KoboldStaker memory staker = s.koboldStaker[tokenId];
+            staker.accumulatedRewards += reward;
+            //If Token Is Staking Then Update the Timestamp
+            if(stakedStatus[0]) {
+                staker.lastUpdateTimestamp = block.timestamp;
+            }
+            //Else Set Timestamp To Zero
+            //This works because we first call batchStake or batchUnstake and then we call updateReward
+            else{
+                staker.lastUpdateTimestamp = 0;
+            }
+            s.koboldStaker[tokenId] = staker;
+            unchecked{++i;}
         }
     }
 
-   
     function startKoboldBatchStake(uint[] calldata tokenIds) internal {
         AppStorage storage appStorage = LibAppStorage.appStorage();
-        updateReward(tokenIds);
         iKobolds(appStorage.koboldAddress).batchStake(tokenIds);
+        updateReward(tokenIds);
     }
     function endKoboldBatchStake(uint[] calldata tokenIds) internal {
         AppStorage storage appStorage = LibAppStorage.appStorage();
-        updateRewardOnEndStake(tokenIds);
         iKobolds(appStorage.koboldAddress).batchUnstake(tokenIds);
+        updateReward(tokenIds);
     }
     function isValidTimestamp(uint referenceTimestamp,uint acceptableTimelag) internal view returns(bool) {
         return  referenceTimestamp + acceptableTimelag > block.timestamp;
@@ -153,6 +147,7 @@ library LibKoboldStaking {
     uint referenceTimestamp,
     bytes memory signature) internal {
         Storage storage s = getStorage();
+        AppStorage storage appStorage = LibAppStorage.appStorage();
         updateReward(tokenIds);
         KoboldStakingMultiplier memory stakingMultiplier = LibKoboldMultipliers.getKoboldMultiplier(koboldMultiplierId);
         LibKoboldMultipliers.spendMultiplier(msg.sender,koboldMultiplierId,1);
@@ -174,7 +169,6 @@ library LibKoboldStaking {
         unchecked{++i;}
         }
         totalReward = totalReward *  (100 + rewardIncreasePercent) / 100;
-        AppStorage storage appStorage = LibAppStorage.appStorage();
         iIngotToken(appStorage.ingotTokenAddress).mint(msg.sender,totalReward);
     }
     

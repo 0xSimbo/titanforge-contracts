@@ -9,4 +9,9 @@ interface iKobolds {
     function burn(uint256 tokenId) external;
 
     function ownerOf(uint256 tokenId) external view returns (address);
+
+    function checkIfBatchIsStaked(uint256[] calldata tokenIds)
+        external
+        view
+        returns (bool[] memory linkedStatus);
 }

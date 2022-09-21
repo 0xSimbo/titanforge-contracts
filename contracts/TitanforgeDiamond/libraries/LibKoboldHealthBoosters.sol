@@ -7,7 +7,7 @@ import {KoboldHealthBooster}  from "../interfaces/IKoboldHealthBooster.sol";
 library LibKoboldHealthBoosters {
     //Storage
     bytes32 internal constant NAMESPACE = keccak256("titanforge.kobold.health.items");
-    event KoboldHealthBoosterUsed(uint indexed koboldTokenId,uint healthToGive);
+    event KoboldHealthBoosterUsed(uint indexed koboldTokenId,uint healthToGive,uint quantity);
     struct Storage{
         mapping(uint => KoboldHealthBooster) koboldHealthBoosters;
         mapping(address => mapping(uint => uint)) balanceOfKoboldHealthBoosters;
@@ -37,7 +37,7 @@ library LibKoboldHealthBoosters {
         }
         if(quantity > s.balanceOfKoboldHealthBoosters[from][koboldHealthBoosterId]) revert ("Kobold healthBooster: Insufficient healthBooster Balance");
         s.balanceOfKoboldHealthBoosters[from][koboldHealthBoosterId] -= quantity;
-        emit KoboldHealthBoosterUsed(koboldTokenId,s.koboldHealthBoosters[koboldHealthBoosterId].healthBoost);
+        emit KoboldHealthBoosterUsed(koboldTokenId,s.koboldHealthBoosters[koboldHealthBoosterId].healthBoost,quantity);
     }
     function getKoboldHealthBooster(uint koboldHealthBoosterId) internal view returns(KoboldHealthBooster memory) {
         Storage storage s = getStorage();

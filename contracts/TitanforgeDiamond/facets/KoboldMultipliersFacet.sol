@@ -26,7 +26,7 @@ contract KoboldMultipliersFacet is Ownable {
     function purchaseKoboldMultiplier(uint koboldMultiplierId,uint quantity) external {
         address ingotAddress = LibAppStorage.getIngotTokenAddress();
         KoboldStakingMultiplier memory multiplier = LibKoboldMultipliers.getKoboldMultiplier(koboldMultiplierId);
-        IERC20Like(ingotAddress).transferFrom(msg.sender,address(this),multiplier.price);
+        IERC20Like(ingotAddress).transferFrom(msg.sender,address(this),multiplier.price*quantity);
         LibKoboldMultipliers.purchaseMultiplier(msg.sender,koboldMultiplierId,quantity);
     }
     //We Get User Balance

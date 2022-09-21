@@ -27,7 +27,7 @@ contract KoboldHealthBoosterFacet is Ownable {
     function purchaseKoboldHealthBooster(uint koboldHealthBoosterId,uint quantity) external {
         address ingotAddress = LibAppStorage.getIngotTokenAddress();
         KoboldHealthBooster memory healthBooster = LibKoboldHealthBoosters.getKoboldHealthBooster(koboldHealthBoosterId);
-        IERC20Like(ingotAddress).transferFrom(msg.sender,address(this),healthBooster.price);
+        IERC20Like(ingotAddress).transferFrom(msg.sender,address(this),healthBooster.price*quantity);
         LibKoboldHealthBoosters.purchaseKoboldHealthBooster(msg.sender,koboldHealthBoosterId,quantity);
     }
     //We Get User Balance

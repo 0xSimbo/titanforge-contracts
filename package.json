@@ -6,7 +6,7 @@
     "hardhat": "^2.11.2"
   },
   "scripts": {
-    "sign-kobold-whitelist": "ts-node ./signatures/kobolds/whitelist/sign.ts"
+    "sign-kobold-whitelist": "ts-node ./signatures/kobolds/whitelist/sign.ts && ts-node ./signatures/kobolds/og/sign.ts"
   },
   "dependencies": {
     "@nomiclabs/hardhat-waffle": "^2.0.3",

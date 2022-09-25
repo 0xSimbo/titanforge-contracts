@@ -31,10 +31,13 @@ error NotSender();
 /// @dev Inspired by optimizoor & azuki team bitmaps :)
 contract Kobolds is ERC721AQueryable, Ownable {
     using ECDSA for bytes32;
-    uint256 public constant maxSupply = 6555;
-    uint256 public maxPublicMints = 1;
-    uint256 public whitelistMintPrice = .001 ether;
-    uint256 public publicMintPrice = .001 ether;
+    uint256 public constant maxSupply = 8888;
+    uint256 private constant maxSupplyBeforeOG = 8000;
+    uint256 public constant maxPublicMints = 2;
+    uint256 private constant EXTRA_MINT_INFO_DATA_ENTRY_BITMASK = (1 << 32) -1;
+    uint256 private constant NUM_MINTED_PUBLIC_BITPOS = 32;
+    uint256 public whitelistMintPrice = .0001 ether; //.0188 Mainnet
+    uint256 public publicMintPrice = .0001 ether;
 
     address private signer = 0x6884efd53b2650679996D3Ea206D116356dA08a9;
     address  private titans;
@@ -48,9 +51,10 @@ contract Kobolds is ERC721AQueryable, Ownable {
     enum SaleStatus {
         INACTIVE,
         WHITELIST,
-        PUBLIC
+        PUBLIC,
+        OG
     }
-    SaleStatus public saleStatus = SaleStatus.WHITELIST; //TODO: Turn This Off On Mainnet
+    SaleStatus public saleStatus = SaleStatus.INACTIVE;
     mapping(address => bool) private approvedStakingContract;
     mapping(address => bool) private approvedBurningContract;
 
@@ -164,8 +168,7 @@ contract Kobolds is ERC721AQueryable, Ownable {
         //Token Must Be Staked In Order To Unstake
         if (!isStaked) revert TokenWasNotStaking();
         //Users must  approve the staking contract before it can lock their NFTs.
-        //TODO: decide if this is redundant
-        if (!isApprovedForAll(ownerOf(tokenId), _msgSender()))
+            if (!isApprovedForAll(ownerOf(tokenId), _msgSender()))
             revert NotApproved();
         //Resets the Staking Data
         delete packedTokenStakingData[tokenId];
@@ -215,7 +218,7 @@ contract Kobolds is ERC721AQueryable, Ownable {
         bytes memory signature
     ) external payable {
         if (saleStatus != SaleStatus.WHITELIST) revert SaleNotStarted();
-        if (totalSupply() + amount > maxSupply) revert SoldOut();
+        if (totalSupply() + amount > maxSupplyBeforeOG) revert SoldOut();
         bytes32 hash = keccak256(abi.encodePacked("KBLD",max, _msgSender()));
         if (hash.toEthSignedMessageHash().recover(signature) != signer)
             revert NotWhitelisted();
@@ -223,26 +226,39 @@ contract Kobolds is ERC721AQueryable, Ownable {
         if (_numberMinted(_msgSender()) + amount > max) revert MaxMints();
         _mint(_msgSender(), amount);
     }
+    function ogMint(
+        uint256 amount,
+        uint256 max,
+        bytes memory signature
+    ) external  {
+        if (saleStatus != SaleStatus.OG) revert SaleNotStarted();
+        if (totalSupply() + amount > maxSupply) revert SoldOut();
+        bytes32 hash = keccak256(abi.encodePacked("KOG",max, _msgSender()));
+        if (hash.toEthSignedMessageHash().recover(signature) != signer)
+            revert NotWhitelisted();
+        uint numOgMints = getNumMintedOG(_msgSender());
+        if (numOgMints + amount > max) revert MaxMints();
+        setNumMintedOG(_msgSender(),numOgMints + amount);
+        _mint(_msgSender(), amount);
+    }
 
     function publicMint(uint256 amount) external payable {
         if (saleStatus != SaleStatus.PUBLIC) revert SaleNotStarted();
-        if (_msgSender() == address(0)) revert ZeroAddress();
         if (_msgSender() != tx.origin) revert NotSender();
-        if (totalSupply() + amount > maxSupply) revert SoldOut();
-        uint64 numMinted = _getAux(_msgSender());
+        if (totalSupply() + amount > maxSupplyBeforeOG) revert SoldOut();
+        uint numMinted = getNumMintedPublic(_msgSender());
         if (numMinted + amount > maxPublicMints) revert MaxMints();
         if (msg.value < publicMintPrice * amount) revert Underpriced();
-        //Should Never Overflow the uint64 cap as this will be an extremely small value.
-        _setAux(_msgSender(), (uint64(amount) + numMinted));
+        setNumMintedPublic(_msgSender(), (uint64(amount) + numMinted));
         _mint(_msgSender(), amount);
     }
 
     function getNumMintedPublic(address account)
-        external
+        public
         view
         returns (uint256)
     {
-        return uint256(_getAux(account));
+        return (uint256(_getAux(account)) >> NUM_MINTED_PUBLIC_BITPOS) & EXTRA_MINT_INFO_DATA_ENTRY_BITMASK;
     }
 
     function getNumMintedWhitelist(address account)
@@ -251,6 +267,23 @@ contract Kobolds is ERC721AQueryable, Ownable {
         returns (uint256)
     {
         return _numberMinted(account);
+    }
+
+    function getNumMintedOG(address account) public view returns(uint) {
+        return _getAux(account) & EXTRA_MINT_INFO_DATA_ENTRY_BITMASK;
+    }
+    function setNumMintedPublic(address account,uint num) internal {
+        //Can't Overflow Since BITPOS = 32 and Max Public Mints = 2;
+        uint numMintedOG = getNumMintedOG(account);
+        uint preserveDataPlusNum = numMintedOG | (num << NUM_MINTED_PUBLIC_BITPOS);
+        _setAux(account, uint64(preserveDataPlusNum));
+    }
+    function setNumMintedOG(address account, uint num) internal {
+        //Cant Overflow Since Max Mints On OG = 1
+        //Preserving Data For Good Practice Although We Don't Really Need To
+        uint numMintedPublic = getNumMintedPublic(account);
+        uint preserveDataPlusNum = (numMintedPublic << NUM_MINTED_PUBLIC_BITPOS) | num;
+        _setAux(account,uint64(preserveDataPlusNum));
     }
 
     /*
@@ -299,6 +332,9 @@ contract Kobolds is ERC721AQueryable, Ownable {
 
     function setPublicOn() external onlyOwner {
         saleStatus = SaleStatus.PUBLIC;
+    }
+    function setOgOn() external onlyOwner{
+        saleStatus = SaleStatus.OG;
     }
 
     function turnSalesOff() external onlyOwner {

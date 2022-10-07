@@ -48,6 +48,8 @@ describe("Diamond", function () {
 
     //Approve the diamond to mint the ingot tokens
     await ingot.approveMinter(diamond.address);
+    await ingot.approveReceiver(diamond.address);
+    await ingot.approveTransferrer(diamond.address);
 
 
     return { diamond, owner, otherAccount,multiplierFacet,ingot,kobolds,koboldStakingFacet,
@@ -135,6 +137,9 @@ describe("Diamond", function () {
         expect(await diamondAttachedToKoboldStaking.getRewardPerSecond()).to.equal(ethers.utils.parseEther('.1'));
         expect(await diamondAttachedToKoboldStaking.getAcceptableTimelag()).to.equal(240);
 
+        //airdrop myself  10 kobolds
+        await kobolds["airdrop(address[],uint256[])"]( [owner.address], [10] );
+
         const tokensToStake = [0,1,2,3,4,5]
         await diamondAttachedToKoboldStaking.startKoboldBatchStake(tokensToStake);
         await time.increase(60);
@@ -142,12 +147,7 @@ describe("Diamond", function () {
 
         console.log(`kobold 0 = ${await diamondAttachedToKoboldStaking.getKoboldAccumulatedReward(0)}`);
 
-        // await diamondAttachedToKoboldStaking.withdrawReward([0]);
-        // console.log(`kobold 0  after redeeming= ${await diamondAttachedToKoboldStaking.getKoboldAccumulatedReward(0)}`);
-        // expect(await diamondAttachedToKoboldStaking.getKoboldAccumulatedReward(0)).to.equal(0);
-        // console.log(`user ignot balance = ${await ingot.balanceOf(owner.address)}`);
 
-        // expect(await diamondAttachedToKoboldStaking.viewKoboldTotalReward(0)).to.equal(ethers.utils.parseEther('0'));
 
         // !Setting Up Kobold Multipliers Facet
         const koboldMultipliersFunctionNames  = [

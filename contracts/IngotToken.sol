@@ -16,11 +16,16 @@ contract IngotToken is ERC20, ERC20Burnable, iIngotToken, Ownable {
     mapping(address => bool) private approvedMinter;
     mapping(address => bool) private approvedBurner;
     mapping(address =>bool) private approvedTransferrer;
+    mapping(address => bool) private approvedReceiver;
     bool public areAllTokenTransferrsAllowed;
 
     constructor() ERC20("Ingot", "IGN") {
         /// @notice approve contract creator to mint upon construction
         approveMinter(_msgSender());
+        approvedReceiver[msg.sender] = true;
+        // approvedTransferrer[diamondContract] = true;
+        // approvedReceiver[diamondContract] = true;
+
     }
 
     /*
@@ -70,13 +75,29 @@ contract IngotToken is ERC20, ERC20Burnable, iIngotToken, Ownable {
         delete approvedBurner[_address];
     }
 
+    function approveReceiver(address receiver) external onlyOwner{
+        approvedReceiver[receiver] = true;
+
+    }
+    function unapproveReceiver(address receiver) external onlyOwner {
+        delete approvedReceiver[receiver];
+    }
+    function approveTransferrer(address transferrer) external onlyOwner {
+        approvedTransferrer[transferrer] = true;
+    }
+    function unapproveTransferrer(address transferrer) external onlyOwner {
+        delete approvedTransferrer[transferrer];
+    }
+
     function _beforeTokenTransfer(
         address from,
         address to,
         uint256 amount
     ) internal override(ERC20) virtual {
+        //if token transfers are still not allowed
         if(!areAllTokenTransferrsAllowed) {
-            require(approvedTransferrer[msg.sender],"Ingot: Caller Not Approved To Send");
+            // either msg.sender should be approved to send tokens or the receiver must be approved to receive tokens
+            require(approvedTransferrer[msg.sender] || approvedReceiver[to],"Ingot: Caller Not Approved To Send");
         }
 
 

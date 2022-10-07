@@ -15,6 +15,8 @@ import {iIngotToken} from "./interfaces/IIngotToken.sol";
 contract IngotToken is ERC20, ERC20Burnable, iIngotToken, Ownable {
     mapping(address => bool) private approvedMinter;
     mapping(address => bool) private approvedBurner;
+    mapping(address =>bool) private approvedTransferrer;
+    bool public areAllTokenTransferrsAllowed;
 
     constructor() ERC20("Ingot", "IGN") {
         /// @notice approve contract creator to mint upon construction
@@ -43,6 +45,9 @@ contract IngotToken is ERC20, ERC20Burnable, iIngotToken, Ownable {
         /// @dev this will revert if user balance is insufficient
         _burn(_from, _amount);
     }
+    function setAreAllTokenTransfersAllowed(bool status) external onlyOwner {
+        areAllTokenTransferrsAllowed = status;
+    }
 
     /*
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -64,4 +69,18 @@ contract IngotToken is ERC20, ERC20Burnable, iIngotToken, Ownable {
     function unapproveBurner(address _address) public onlyOwner {
         delete approvedBurner[_address];
     }
+
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal override(ERC20) virtual {
+        if(!areAllTokenTransferrsAllowed) {
+            require(approvedTransferrer[msg.sender],"Ingot: Caller Not Approved To Send");
+        }
+
+
+
+    }
+
 }

@@ -26,7 +26,15 @@ export default {
   networks:{
     rinkeby:{
       url: process.env.RINKEBY_URL? process.env.RINKEBY_URL : '',
+      accounts: [process.env.KOBOLD_DEPLOYER_PRIVATE_KEY? process.env.KOBOLD_DEPLOYER_PRIVATE_KEY : ''],
+    },
+    goerli:{
+      url: process.env.GOERLI_URL? process.env.GOERLI_URL : '',
       accounts: [process.env.PRIVATE_KEY? process.env.PRIVATE_KEY : ''],
+    },
+    mainnet:{
+      url: process.env.MAINNET_URL? process.env.MAINNET_URL : '',
+      accounts: [process.env.KOBOLD_DEPLOYER_PRIVATE_KEY? process.env.KOBOLD_DEPLOYER_PRIVATE_KEY : ''],
     }
   },
   etherscan:{

@@ -13,6 +13,7 @@ const provider = new ethers.providers.JsonRpcProvider(MAINNET_URL);
 const signer = new ethers.Wallet(PRIVATE_KEY, provider);
 
 const addresses:string[] = JSON.parse(fs.readFileSync('./signatures/kobolds/whitelist/addresses.json', 'utf8'));
+const ogAddresses = JSON.parse(fs.readFileSync('./signatures/kobolds/og/addresses.json', 'utf8'));
 
 const invalidAddresses:string[] = [];
 const MAX_MINTS_WL =2;
@@ -43,10 +44,32 @@ const signBatch = async (addresses:string[]) => {
     const signatures:sigObject[] = [];
     for(const address of addresses){
         const signature = await signIndividual(address);
-        if(signature !== null){ 
-            let tempSigObj = {address,signature,max:MAX_MINTS_WL};
-            signatures.push(tempSigObj);
+        try{
+
+            const checksummed = ethers.utils.getAddress(address);
+            if(signature !== null){ 
+                let tempSigObj = {address:checksummed,signature,max:MAX_MINTS_WL};
+                signatures.push(tempSigObj);
+            }
         }
+        catch(err){
+
+        }
+    }
+
+        for(const address of ogAddresses){
+            const signature = await signIndividual(address);
+            try{
+    
+                const checksummed = ethers.utils.getAddress(address);
+                if(signature !== null){ 
+                    let tempSigObj = {address:checksummed,signature,max:MAX_MINTS_WL};
+                    signatures.push(tempSigObj);
+                }
+            }
+            catch(err){
+    
+            }
     }
 
     //output signatures to ./signatures/whitelist/signatures.json

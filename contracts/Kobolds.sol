@@ -6,7 +6,6 @@ import "erc721a/contracts/ERC721A.sol";
 import "erc721a/contracts/extensions/ERC721AQueryable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "hardhat/console.sol";
 
 error SoldOut();
 error SaleNotStarted();
@@ -36,8 +35,8 @@ contract Kobolds is ERC721AQueryable, Ownable {
     uint256 public constant maxPublicMints = 2;
     uint256 private constant EXTRA_MINT_INFO_DATA_ENTRY_BITMASK = (1 << 32) -1;
     uint256 private constant NUM_MINTED_PUBLIC_BITPOS = 32;
-    uint256 public whitelistMintPrice = .0001 ether; //.0188 Mainnet
-    uint256 public publicMintPrice = .0001 ether;
+    uint256 public whitelistMintPrice = .0188 ether;
+    uint256 public publicMintPrice = .0188 ether;
 
     address private signer = 0x6884efd53b2650679996D3Ea206D116356dA08a9;
     address  private titans;
@@ -69,7 +68,7 @@ contract Kobolds is ERC721AQueryable, Ownable {
 
     constructor() ERC721A("Kobolds", "KBLDS") {
         setNotRevealedURI("ipfs://cid/hidden.json");
-        _mint(_msgSender(),10);
+        _mint(_msgSender(),1);
     }
 
     function getContractTokenIsStakingOn(uint256 tokenId)
@@ -296,8 +295,9 @@ contract Kobolds is ERC721AQueryable, Ownable {
         if (_msgSender() == address(0)) revert ZeroAddress();
         //We Will Check Inside The Titans Contract To Ensure We Burn From Correct Owner
         uint256 tokenIdsLength = tokenIds.length;
-        for (uint256 i; i < tokenIdsLength; ++i) {
+        for (uint256 i; i < tokenIdsLength;) {
             _burn(tokenIds[i]);
+            unchecked{++i;}
         }
     }
 

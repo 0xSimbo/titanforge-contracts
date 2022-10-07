@@ -7,7 +7,7 @@ import {KoboldHealthBooster}  from "../interfaces/IKoboldHealthBooster.sol";
 library LibKoboldHealthBoosters {
     //Storage
     bytes32 internal constant NAMESPACE = keccak256("titanforge.kobold.health.items");
-    event KoboldHealthBoosterUsed(uint indexed koboldTokenId,uint healthToGive,uint quantity);
+    event KoboldHealthBoosterUsed(uint indexed koboldTokenId,uint indexed healthToGive,uint indexed quantityUsed);
     struct Storage{
         mapping(uint => KoboldHealthBooster) koboldHealthBoosters;
         mapping(address => mapping(uint => uint)) balanceOfKoboldHealthBoosters;

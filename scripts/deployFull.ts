@@ -5,6 +5,7 @@ import { KoboldMultipliersFacet__factory,
     KoboldStakingFacet__factory,
     KoboldHealthBoosterFacet__factory
     } from "../typechain-types";
+import * as fs from 'fs';
 async function main() {
  
     const[owner,otherAccount] = await ethers.getSigners();

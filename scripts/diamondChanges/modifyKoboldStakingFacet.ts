@@ -33,7 +33,7 @@ async function main() {
   );
     const koboldStakingFacetCut = [{
     target: koboldStakingFacet.address,
-    action: 1,
+    action: 1, //0 = add, 1 = replace, 2 = remove
     selectors: koboldStakingFunctionSignatures,
     }];
 
